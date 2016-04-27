@@ -45,6 +45,7 @@ public class Explorer {
     //}
 
     public void explore(ExplorationState state) {
+        // Initial code from Keith's repo - used to test Intellij set up
         Set<Long> seen = new LinkedHashSet<>();
 
         while (state.getDistanceToTarget() != 0) {
