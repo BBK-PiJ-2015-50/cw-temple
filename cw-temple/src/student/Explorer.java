@@ -45,29 +45,28 @@ public class Explorer {
     public void explore(ExplorationState state) {
         Set<Long> visitedTiles = new LinkedHashSet<>();
         Deque<Long> route = new LinkedList();
-        long id, currentLocation, nextTile;
+        long id, nextTile;
         Collection<NodeStatus> neighbours;
-
+        // Stop when the orb is reached, ie. distance is zero
         while (state.getDistanceToTarget() > 0) {
             visitedTiles.add(state.getCurrentLocation());
             neighbours = state.getNeighbours();
             nextTile = -1L;
+            // Look for neighbouring tiles not yet visited
             for (NodeStatus tile : neighbours) {
                 id = tile.getId();
-                System.out.println("Going thro neighbours: TILE id " + id);
+                // Select 1st unvisited tile found
                 if (!visitedTiles.contains(id)) {
                     nextTile = id;
-                    System.out.println("NEXT TILE id " + id);
+                    // Record route in case we need to backtrack
                     route.push(state.getCurrentLocation());
                     break;
                 }
             }
+            // Go back if no unvisited neighbouring tiles are found
             if (nextTile == -1L) {
-                System.out.println("No unvisited tiles: NEXT TILE " + nextTile);
                 nextTile = route.pop();
-                System.out.println("Popped from route: NEXT TILE " + nextTile);
             }
-            System.out.println("Move to next tile " + nextTile);
             state.moveTo(nextTile);
         }
     }
