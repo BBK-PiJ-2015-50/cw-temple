@@ -4,9 +4,7 @@ import game.EscapeState;
 import game.ExplorationState;
 import game.NodeStatus;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Explorer {
 
@@ -45,26 +43,32 @@ public class Explorer {
     //}
 
     public void explore(ExplorationState state) {
-        // Initial code from Keith's repo - used to test Intellij set up
-        Set<Long> seen = new LinkedHashSet<>();
+        Set<Long> visitedTiles = new LinkedHashSet<>();
+        Deque<Long> route = new LinkedList();
+        long id, currentLocation, nextTile;
+        Collection<NodeStatus> neighbours;
 
-        while (state.getDistanceToTarget() != 0) {
-            Collection<NodeStatus> cns = state.getNeighbours();
-            // add current position to seen items
-            seen.add(state.getCurrentLocation());
-
-            int distance = Integer.MAX_VALUE;
-            long id = -1L;
-            for (NodeStatus ns : cns) {
-                if (ns.getDistanceToTarget() < distance && !seen.contains(ns.getId())) {
-                    distance = ns.getDistanceToTarget();
-                    id = ns.getId();
+        while (state.getDistanceToTarget() > 0) {
+            visitedTiles.add(state.getCurrentLocation());
+            neighbours = state.getNeighbours();
+            nextTile = -1L;
+            for (NodeStatus tile : neighbours) {
+                id = tile.getId();
+                System.out.println("Going thro neighbours: TILE id " + id);
+                if (!visitedTiles.contains(id)) {
+                    nextTile = id;
+                    System.out.println("NEXT TILE id " + id);
+                    route.push(state.getCurrentLocation());
+                    break;
                 }
             }
-            System.out.println("Moving to tile with id: " + id);
-            System.out.println("Moving from position: " + state.getCurrentLocation());
-            state.moveTo(id);
-            System.out.println("\t to: " + state.getCurrentLocation());
+            if (nextTile == -1L) {
+                System.out.println("No unvisited tiles: NEXT TILE " + nextTile);
+                nextTile = route.pop();
+                System.out.println("Popped from route: NEXT TILE " + nextTile);
+            }
+            System.out.println("Move to next tile " + nextTile);
+            state.moveTo(nextTile);
         }
     }
 
