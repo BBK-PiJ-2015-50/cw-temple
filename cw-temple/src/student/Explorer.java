@@ -68,7 +68,7 @@ public class Explorer {
             if (noUnvisitedNeighbourFound) {
                 nextTile = route.pop();
             } else {
-                // Record route in case we need to backtrack
+                // Record route in case we need to go back
                 route.push(state.getCurrentLocation());
             }
             state.moveTo(nextTile);
@@ -99,6 +99,7 @@ public class Explorer {
      * @param state the information available at the current state
      */
     public void escape(EscapeState state) {
+
         //TODO: Escape from the cavern before time runs out
     }
 }
