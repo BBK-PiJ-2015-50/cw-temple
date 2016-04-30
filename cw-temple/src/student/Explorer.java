@@ -1,8 +1,6 @@
 package student;
 
-import game.EscapeState;
-import game.ExplorationState;
-import game.NodeStatus;
+import game.*;
 
 import java.util.*;
 
@@ -101,6 +99,59 @@ public class Explorer {
      */
     public void escape(EscapeState state) {
 
-        //TODO: Escape from the cavern before time runs out
+        //TODO: Adapt method so George always escapes before time runs out
+        // Basic implementation - adapting explore() method
+        // Often takes too many steps
+
+        Set<Long> visitedNodes = new LinkedHashSet<>();
+        Deque<Node> route = new LinkedList();
+        int shortestDistance;
+        Node nextNode;
+        Collection<Node> neighbours;
+        Boolean noUnvisitedNeighbourFound;
+
+        // Stop when the orb is reached, ie. distance is zero
+        while (calculateDistanceToTarget(state) > 0) {
+            visitedNodes.add(state.getCurrentNode().getId());
+            neighbours = state.getCurrentNode().getNeighbours();
+            // Initialise nextTile before checking for unvisited tiles
+            nextNode = null;
+            // Initialise shortestDistance before looking for tile closest to orb
+            shortestDistance = Integer.MAX_VALUE;
+            noUnvisitedNeighbourFound = true;
+            // Look for neighbouring tiles not yet visited
+            for (Node node : neighbours) {
+                if (!visitedNodes.contains(node.getId())) {
+                    noUnvisitedNeighbourFound = false;
+                    // Look for neighbouring tile closest to orb
+                    if (calculateDistanceToTarget(state) < shortestDistance) {
+                        shortestDistance = calculateDistanceToTarget(state);
+                        nextNode = node;
+                    }
+                }
+            }
+            // Go back if no unvisited neighbouring tiles are found
+            if (noUnvisitedNeighbourFound) {
+                nextNode = route.pop();
+            } else {
+                // Record route in case we need to retrace our steps
+                route.push(state.getCurrentNode());
+            }
+            state.moveTo(nextNode);
+            if (nextNode.getTile().getGold() > 0) {
+                state.pickUpGold();
+            }
+        }
+    }
+
+    // Calculate distance from current node to exit
+    private int calculateDistanceToTarget(EscapeState state) {
+        Tile currentTile = state.getCurrentNode().getTile();
+        int currentRow = currentTile.getRow();
+        int currentColumn = currentTile.getColumn();
+        Tile exitTile = state.getExit().getTile();
+        int exitRow = exitTile.getRow();
+        int exitColumn = exitTile.getColumn();
+        return Math.abs(currentRow - exitRow) + Math.abs(currentColumn - exitColumn);
     }
 }
