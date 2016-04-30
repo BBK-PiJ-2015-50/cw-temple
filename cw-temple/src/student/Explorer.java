@@ -69,7 +69,7 @@ public class Explorer {
             if (noUnvisitedNeighbourFound) {
                 nextTile = route.pop();
             } else {
-                // Record route in case we need to go back
+                // Record route in case we need to retrace our steps
                 route.push(state.getCurrentLocation());
             }
             state.moveTo(nextTile);
