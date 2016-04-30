@@ -58,6 +58,7 @@ public class Explorer {
             for (NodeStatus tile : neighbours) {
                 if (!visitedTiles.contains(tile.getId())) {
                     noUnvisitedNeighbourFound = false;
+                    // Look for neighbouring tile closest to orb
                     if (tile.getDistanceToTarget() < shortestDistance) {
                         shortestDistance = tile.getDistanceToTarget();
                         nextTile = tile.getId();
