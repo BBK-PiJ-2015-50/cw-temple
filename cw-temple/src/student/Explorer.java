@@ -45,27 +45,35 @@ public class Explorer {
     public void explore(ExplorationState state) {
         Set<Long> visitedTiles = new LinkedHashSet<>();
         Deque<Long> route = new LinkedList();
-        long id, nextTile;
+        long nextTile, shortestDistance;
         Collection<NodeStatus> neighbours;
+        Boolean noUnvisitedNeighbourFound;
+
         // Stop when the orb is reached, ie. distance is zero
         while (state.getDistanceToTarget() > 0) {
             visitedTiles.add(state.getCurrentLocation());
             neighbours = state.getNeighbours();
+            // Initialise nextTile before checking for unvisited tiles
             nextTile = -1L;
+            // Initialise shortestDistance before looking for tile closest to orb
+            shortestDistance = Integer.MAX_VALUE;
+            noUnvisitedNeighbourFound = true;
             // Look for neighbouring tiles not yet visited
             for (NodeStatus tile : neighbours) {
-                id = tile.getId();
-                // Select 1st unvisited tile found
-                if (!visitedTiles.contains(id)) {
-                    nextTile = id;
-                    // Record route in case we need to backtrack
-                    route.push(state.getCurrentLocation());
-                    break;
+                if (!visitedTiles.contains(tile.getId())) {
+                    noUnvisitedNeighbourFound = false;
+                    if (tile.getDistanceToTarget() < shortestDistance) {
+                        shortestDistance = tile.getDistanceToTarget();
+                        nextTile = tile.getId();
+                    }
                 }
             }
             // Go back if no unvisited neighbouring tiles are found
-            if (nextTile == -1L) {
+            if (noUnvisitedNeighbourFound) {
                 nextTile = route.pop();
+            } else {
+                // Record route in case we need to backtrack
+                route.push(state.getCurrentLocation());
             }
             state.moveTo(nextTile);
         }
