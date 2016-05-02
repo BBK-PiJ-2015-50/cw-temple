@@ -143,6 +143,7 @@ public class Explorer {
             path.add(tempNode);
             tempNode = nodeMap.get(tempNode).getParent();
         }
+        // Reverse path so it will run from start to exit
         Collections.reverse(path);
         //path.remove(0);
         for (Node node : path) {
