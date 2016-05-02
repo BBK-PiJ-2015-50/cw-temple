@@ -68,7 +68,7 @@ public class Explorer {
             if (noUnvisitedNeighbourFound) {
                 nextTile = route.pop();
             } else {
-                // Record route in case we need to retrace our steps
+                // Record route so we can retrace our steps
                 route.push(state.getCurrentLocation());
             }
             state.moveTo(nextTile);
@@ -138,9 +138,6 @@ public class Explorer {
                             double lengthStartToTempNode = nodeMap.get(tempNode).getLengthStartToNode();
                             double lengthTempNodeToNeighbour = tempNode.getEdge(neighbour).length();
                             double lengthStartToNeighbourViaTempNode = lengthStartToTempNode + lengthTempNodeToNeighbour;
-                            // TEMP PRINT CHECK
-                            System.out.println("lengthStartToNeighbourViaTempNode = " + lengthStartToNeighbourViaTempNode);
-                            System.out.println("nodeMap.get(neighbour).getLengthStartToNode() = " + nodeMap.get(neighbour).getLengthStartToNode());
                             if (lengthStartToNeighbourViaTempNode < nodeMap.get(neighbour).getLengthStartToNode()) {
                                 nodeMap.get(neighbour).setParent(tempNode);
                                 nodeMap.get(neighbour).setLengthStartToNode(lengthStartToNeighbourViaTempNode);
@@ -165,8 +162,6 @@ public class Explorer {
         Collections.reverse(path);
         //path.remove(0);
         for (Node node : path) {
-            // TEMP DEBUGGING PRINT STATEMENT
-            //System.out.println("nodeMap.get(node).getLengthStartToExitViaNode() = " + nodeMap.get(node).getLengthStartToExitViaNode());
             state.moveTo(node);
             if (node.getTile().getGold() > 0) {
                 state.pickUpGold();
