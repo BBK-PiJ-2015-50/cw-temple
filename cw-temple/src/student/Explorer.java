@@ -193,17 +193,19 @@ public class Explorer {
             path.add(pathNode);
             pathNode = nodeMap.get(pathNode).getParent();
         }
-        // Reverse path so it will run from start to exit
+        // Reverse path then follow it from start to exit
         Collections.reverse(path);
-        //path.remove(0);
         for (Node node : path) {
             state.moveTo(node);
+            // Pick up gold if there's any on a tile
             if (node.getTile().getGold() > 0) {
                 state.pickUpGold();
             }
         }
     }
 
+    /* Adds nodes to the Open queue and marks them as Open in NodeInformation
+     * and sets priority as the length from the Start to Exit via the node */
     private void addToOpenNodesQueue(PriorityQueue<Node> openNodes, HashMap<Node, NodeInformation> nodeMap,
                                      Node node, double priority) {
         openNodes.add(node, priority);
@@ -267,53 +269,6 @@ public class Explorer {
 
         public double getLengthStartToExitViaNode() {
             return lengthStartToExitViaNode;
-        }
-    }
-
-    public void escapeBasic(EscapeState state) {
-
-        //TODO: Adapt method so George always escapes before time runs out
-        // Basic implementation - adapting explore() method
-        // Often takes too many steps
-
-        Set<Long> visitedNodes = new LinkedHashSet<>();
-        Deque<Node> route = new LinkedList();
-        int shortestDistance;
-        Node nextNode;
-        Collection<Node> neighbours;
-        Boolean noUnvisitedNeighbourFound;
-
-        // Stop when the orb is reached, ie. distance is zero
-        while (calculateDistanceToTarget(state, state.getCurrentNode()) > 0) {
-            visitedNodes.add(state.getCurrentNode().getId());
-            neighbours = state.getCurrentNode().getNeighbours();
-            // Initialise nextTile before checking for unvisited tiles
-            nextNode = null;
-            // Initialise shortestDistance before looking for tile closest to orb
-            shortestDistance = Integer.MAX_VALUE;
-            noUnvisitedNeighbourFound = true;
-            // Look for neighbouring tiles not yet visited
-            for (Node node : neighbours) {
-                if (!visitedNodes.contains(node.getId())) {
-                    noUnvisitedNeighbourFound = false;
-                    // Look for neighbouring tile closest to orb
-                    if (calculateDistanceToTarget(state, node) < shortestDistance) {
-                        shortestDistance = calculateDistanceToTarget(state, node);
-                        nextNode = node;
-                    }
-                }
-            }
-            // Go back if no unvisited neighbouring tiles are found
-            if (noUnvisitedNeighbourFound) {
-                nextNode = route.pop();
-            } else {
-                // Record route in case we need to retrace our steps
-                route.push(state.getCurrentNode());
-            }
-            state.moveTo(nextNode);
-            if (nextNode.getTile().getGold() > 0) {
-                state.pickUpGold();
-            }
         }
     }
 
