@@ -99,6 +99,67 @@ public class Explorer {
      */
     public void escape(EscapeState state) {
 
+        //TODO: Implement A* algorithm for finding a path through the cavern
+
+        PriorityQueue<Node> openNodes = new PriorityQueueImpl<>();
+        HashMap<Node, NodeInformation> nodeMap = new HashMap<>();
+        Collection<Node> vertices = state.getVertices();
+        Node currentNode;
+
+        for (Node vertex : vertices) {
+            nodeMap.put(vertex, new NodeInformation());
+        }
+        System.out.println("Maze size = " + nodeMap.size());
+
+        openNodes.add(state.getCurrentNode(), 0);
+        nodeMap.get(currentNode).setOpen(true);
+        while (currentNode != state.getExit()) {
+            currentNode = openNodes.poll();
+            nodeMap.get(currentNode).setClosed(true);
+            if (currentNode != state.getExit()) {
+                for (Edge edge : currentNode.getExits()) {
+                    Node neighbour = edge.getDest();
+                    if (!nodeMap.get(neighbour).getClosed()) {
+                        if (!nodeMap.get(neighbour).getOpen()) {
+                            openNodes.add(neighbour, 0);
+                            nodeMap.get(neighbour).setOpen(true);
+                            nodeMap.get(neighbour).setParent(currentNode);
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static class NodeInformation {
+        Boolean closed = false;
+        Boolean open = false;
+        Node parent;
+
+        public void setOpen(Boolean open) {
+            this.open = open;
+        }
+
+        public Boolean getOpen () {
+            return open;
+        }
+
+        public void setClosed() {
+            closed = true;
+        }
+
+        public Boolean getClosed() {
+            return closed;
+        }
+
+        public void setParent(Node parent) {
+            this.parent = parent;
+        }
+    }
+
+    public void escapeBasic(EscapeState state) {
+
         //TODO: Adapt method so George always escapes before time runs out
         // Basic implementation - adapting explore() method
         // Often takes too many steps
