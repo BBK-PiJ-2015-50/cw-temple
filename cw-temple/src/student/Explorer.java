@@ -41,7 +41,7 @@ public class Explorer {
      */
     public void explore(ExplorationState state) {
         Set<Long> visitedTiles = new LinkedHashSet<>();
-        Deque<Long> route = new LinkedList();
+        Deque<Long> route = new LinkedList<>();
         long nextTile, shortestDistance;
         Collection<NodeStatus> neighbours;
         Boolean noUnvisitedNeighbourFound;
@@ -209,7 +209,7 @@ public class Explorer {
                 state.pickUpGold();
             }
 
-            // Pick up gold on adjacent tiles
+            // Pick up gold on directly adjacent tiles
             Node tempNode = state.getCurrentNode();
             List<Node> adjacentTiles = new ArrayList<>(tempNode.getNeighbours());
             for (Node tile : adjacentTiles) {
