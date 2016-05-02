@@ -143,7 +143,15 @@ public class Explorer {
             path.add(tempNode);
             tempNode = nodeMap.get(tempNode).getParent();
         }
-
+        Collections.reverse(path);
+        //path.remove(0);
+        for (Node node : path) {
+            state.moveTo(node);
+            //System.out.println("row: " + node.getTile().getRow() + "\t" + "column: " + node.getTile().getColumn());
+            if (node.getTile().getGold() > 0) {
+                state.pickUpGold();
+            }
+        }
     }
 
     private void addToOpenNodesQueue(PriorityQueue<Node> openNodes, HashMap<Node, NodeInformation> nodeMap,
