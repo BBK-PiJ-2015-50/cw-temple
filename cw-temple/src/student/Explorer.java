@@ -117,7 +117,7 @@ public class Explorer {
          *  The supplied Priority Queue is used for the "open" nodes
          */
 
-        //TODO: Adapt method to seek out more gold
+        //TODO: Develop a more advanced method to seek out more gold
 
         PriorityQueue<Node> openNodes = new PriorityQueueImpl<>();
         HashMap<Node, NodeInformation> nodeMap = new HashMap<>();
