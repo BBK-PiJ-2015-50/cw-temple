@@ -110,8 +110,6 @@ public class Explorer {
         for (Node vertex : vertices) {
             nodeMap.put(vertex, new NodeInformation());
         }
-        System.out.println("Maze size = " + nodeMap.size());
-
         double priority = 0;
         addToOpenNodesQueue(openNodes, nodeMap, start, priority);
         currentNode = start;
