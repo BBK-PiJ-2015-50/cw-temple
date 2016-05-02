@@ -7,7 +7,8 @@ import java.util.*;
 
 public class Explorer {
 
-    private static final int STEPS_REMAINING_CHECK = 100;
+    // Time limit to ensure time doesn't run out while hunting for gold
+    private static final int TIME_LIMIT = 120;
 
     /**
      * Explore the cavern, trying to find the orb in as few steps as possible.
@@ -198,7 +199,6 @@ public class Explorer {
             path.add(pathNode);
             pathNode = nodeMap.get(pathNode).getParent();
         }
-        System.out.println("path size = " + path.size());
         // Reverse path then follow it from start to exit
         Collections.reverse(path);
         for (Node node : path) {
@@ -213,7 +213,7 @@ public class Explorer {
             Node tempNode = state.getCurrentNode();
             List<Node> adjacentTiles = new ArrayList<>(tempNode.getNeighbours());
             for (Node tile : adjacentTiles) {
-                if (state.getTimeRemaining() < STEPS_REMAINING_CHECK) {
+                if (state.getTimeRemaining() < TIME_LIMIT) {
                     break;
                 }
                 if (tile.getTile().getGold() > 0 && !path.contains(tile) && !nodeMap.get(tile).getVisited()) {
