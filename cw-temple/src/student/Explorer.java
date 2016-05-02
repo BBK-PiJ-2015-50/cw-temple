@@ -7,6 +7,8 @@ import java.util.*;
 
 public class Explorer {
 
+    static final int STEPS_REMAINING_CHECK = 100;
+
     /**
      * Explore the cavern, trying to find the orb in as few steps as possible.
      * Once you find the orb, you must return from the function in order to pick
@@ -210,7 +212,7 @@ public class Explorer {
             Node tempNode = state.getCurrentNode();
             List<Node> adjacentTiles = new ArrayList<>(tempNode.getNeighbours());
             for (Node tile : adjacentTiles) {
-                if (state.getTimeRemaining() < 100) {
+                if (state.getTimeRemaining() < STEPS_REMAINING_CHECK) {
                     break;
                 }
                 if (tile.getTile().getGold() > 0 && !path.contains(tile) && !nodeMap.get(tile).getVisited()) {
