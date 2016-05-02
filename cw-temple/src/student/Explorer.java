@@ -205,10 +205,14 @@ public class Explorer {
             if (node.getTile().getGold() > 0) {
                 state.pickUpGold();
             }
+
             // Pick up gold on adjacent tiles
             Node tempNode = state.getCurrentNode();
             List<Node> adjacentTiles = new ArrayList<>(tempNode.getNeighbours());
             for (Node tile : adjacentTiles) {
+                if (state.getTimeRemaining() < 80) {
+                    break;
+                }
                 if (tile.getTile().getGold() > 0 && !path.contains(tile) && !nodeMap.get(tile).getVisited()) {
                     state.moveTo(tile);
                     nodeMap.get(tile).setVisited();
