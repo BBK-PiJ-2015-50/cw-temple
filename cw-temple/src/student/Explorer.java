@@ -117,7 +117,7 @@ public class Explorer {
 
         PriorityQueue<Node> openNodes = new PriorityQueueImpl<>();
         HashMap<Node, NodeInformation> nodeMap = new HashMap<>();
-        Node pathNode;
+        Node pathNode, start;
         double lengthStartToParent, lengthStartToNeighbour, heuristic, lengthStartToExitViaNeighbour;
 
         // All nodes on the graph are mapped to NodeInformation objects
@@ -125,50 +125,67 @@ public class Explorer {
         for (Node vertex : vertices) {
             nodeMap.put(vertex, new NodeInformation());
         }
-
-        Node start = state.getCurrentNode();
-        double priority = 0;
-        // Add the start node to the Open queue
-        addToOpenNodesQueue(openNodes, nodeMap, start, priority);
+        // Add the Start node to the Open queue with priority = 0
+        start = state.getCurrentNode();
+        addToOpenNodesQueue(openNodes, nodeMap, start, 0);
         pathNode = start;
         // Repeat until the exit node is reached
         while (pathNode != state.getExit()) {
-            //
+            // Get lowest F cost node from the Open queue and set to Closed
             pathNode = openNodes.poll();
             nodeMap.get(pathNode).setClosed();
+            // Stop once the exit node is set to Closed
             if (pathNode != state.getExit()) {
+                /* Get the set of edges leaving this node
+                 * and the destination nodes at the ends of the edges */
                 for (Edge edge : pathNode.getExits()) {
                     Node neighbour = edge.getDest();
+                    // Don't check a node if it's Closed
                     if (!nodeMap.get(neighbour).getClosed()) {
+                        // Go through nodes that aren't Open
                         if (!nodeMap.get(neighbour).getOpen()) {
+                            // Set the parent of this neighbour node as the current pathNode
                             nodeMap.get(neighbour).setParent(pathNode);
-                            lengthStartToParent = nodeMap.get(nodeMap.get(neighbour).getParent()).getLengthStartToNode();
+                            // Calculate G cost (length from Start) for this neighbour node & store value
+                            lengthStartToParent = nodeMap.get(nodeMap.get(neighbour)
+                                    .getParent()).getLengthStartToNode();
                             lengthStartToNeighbour = lengthStartToParent + edge.length();
                             nodeMap.get(neighbour).setLengthStartToNode(lengthStartToNeighbour);
+                            // Calculate heuristic (H) and store value
                             heuristic = calculateHeuristic(state, neighbour);
                             nodeMap.get(neighbour).setHeuristic(heuristic);
+                            // Calculate F (length from Start + heuristic) for this neighbour node & store value
                             lengthStartToExitViaNeighbour = lengthStartToNeighbour + heuristic;
                             nodeMap.get(neighbour).setLengthStartToExitViaNode(lengthStartToExitViaNeighbour);
-                            priority = lengthStartToExitViaNeighbour;
-                            addToOpenNodesQueue(openNodes, nodeMap, neighbour, priority);
+                            /* Add this neighbour node to the Open queue
+                             * with priority being the length from Start to Exit via this node */
+                            addToOpenNodesQueue(openNodes, nodeMap, neighbour, lengthStartToExitViaNeighbour);
                         } else {
-                            // Check if path is shorter via this pathNode
-                            double lengthStartTopathNode = nodeMap.get(pathNode).getLengthStartToNode();
-                            double lengthpathNodeToNeighbour = pathNode.getEdge(neighbour).length();
-                            double lengthStartToNeighbourViapathNode = lengthStartTopathNode + lengthpathNodeToNeighbour;
-                            if (lengthStartToNeighbourViapathNode < nodeMap.get(neighbour).getLengthStartToNode()) {
+                            /*  If this neighbour node is already on the Open queue,
+                                check if path to Exit is shorter via this pathNode than previous path
+                                First calculate length of path from Start to this neighbour node via pathNode */
+                            double lengthStartToPathNode = nodeMap.get(pathNode).getLengthStartToNode();
+                            double lengthPathNodeToNeighbour = pathNode.getEdge(neighbour).length();
+                            double lengthStartToNeighbourViaPathNode = lengthStartToPathNode + lengthPathNodeToNeighbour;
+                            // Then compare with previous path length
+                            if (lengthStartToNeighbourViaPathNode < nodeMap.get(neighbour).getLengthStartToNode()) {
+                                // If shorter - set parent of neighbour to pathNode
                                 nodeMap.get(neighbour).setParent(pathNode);
-                                nodeMap.get(neighbour).setLengthStartToNode(lengthStartToNeighbourViapathNode);
-                                double lengthStartToExitViapathNode = lengthStartToNeighbourViapathNode
+                                // Update G cost (length from Start) for this neighbour node
+                                nodeMap.get(neighbour).setLengthStartToNode(lengthStartToNeighbourViaPathNode);
+                                // Update F (length from Start + heuristic) for this neighbour node
+                                double lengthStartToExitViaPathNode = lengthStartToNeighbourViaPathNode
                                         + nodeMap.get(neighbour).getHeuristic();
-                                nodeMap.get(neighbour).setLengthStartToExitViaNode(lengthStartToExitViapathNode);
-                                openNodes.updatePriority(neighbour, lengthStartToExitViapathNode);
+                                nodeMap.get(neighbour).setLengthStartToExitViaNode(lengthStartToExitViaPathNode);
+                                // Update priority on Open queue
+                                openNodes.updatePriority(neighbour, lengthStartToExitViaPathNode);
                             }
                         }
                     }
                 }
             }
         }
+
         // Save path
         ArrayList<Node> path = new ArrayList<>();
         pathNode = state.getExit();
