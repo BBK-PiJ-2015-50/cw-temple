@@ -105,37 +105,65 @@ public class Explorer {
         HashMap<Node, NodeInformation> nodeMap = new HashMap<>();
         Collection<Node> vertices = state.getVertices();
         Node currentNode;
+        Node start = state.getCurrentNode();
 
         for (Node vertex : vertices) {
             nodeMap.put(vertex, new NodeInformation());
         }
         System.out.println("Maze size = " + nodeMap.size());
 
-        openNodes.add(state.getCurrentNode(), 0);
-        nodeMap.get(currentNode).setOpen(true);
+        double priority = 0;
+        addToOpenNodesQueue(openNodes, nodeMap, start, priority);
+        currentNode = start;
         while (currentNode != state.getExit()) {
             currentNode = openNodes.poll();
-            nodeMap.get(currentNode).setClosed(true);
+            nodeMap.get(currentNode).setClosed();
             if (currentNode != state.getExit()) {
                 for (Edge edge : currentNode.getExits()) {
                     Node neighbour = edge.getDest();
                     if (!nodeMap.get(neighbour).getClosed()) {
                         if (!nodeMap.get(neighbour).getOpen()) {
-                            openNodes.add(neighbour, 0);
-                            nodeMap.get(neighbour).setOpen(true);
                             nodeMap.get(neighbour).setParent(currentNode);
-
+                            double lengthStartToParent = nodeMap.get(nodeMap.get(neighbour)
+                                    .getParent()).getLengthStartToNode();
+                            double lengthStartToNeighbour = lengthStartToParent + edge.length();
+                            double heuristic = calculateHeuristic(state, neighbour);
+                            nodeMap.get(neighbour).setHeuristic(heuristic);
+                            double lengthStartToExitViaNeighbour = lengthStartToNeighbour + heuristic;
+                            addToOpenNodesQueue(openNodes, nodeMap, neighbour, lengthStartToExitViaNeighbour);
                         }
                     }
                 }
             }
         }
+        // Save path
+        ArrayList<Node> path = new ArrayList<>();
+        Node tempNode = state.getExit();
+        while (tempNode != start) {
+            path.add(tempNode);
+            tempNode = nodeMap.get(tempNode).getParent();
+        }
+
+    }
+
+    private void addToOpenNodesQueue(PriorityQueue<Node> openNodes, HashMap<Node, NodeInformation> nodeMap,
+                                     Node node, double priority) {
+        openNodes.add(node, priority);
+        nodeMap.get(node).setOpen(true);
+        nodeMap.get(node).setLengthStartToExitViaNode(priority);
     }
 
     private static class NodeInformation {
         Boolean closed = false;
         Boolean open = false;
         Node parent;
+        double lengthStartToNode;
+        double heuristic;
+        double lengthStartToExitViaNode;
+
+        public NodeInformation() {
+
+        }
 
         public void setOpen(Boolean open) {
             this.open = open;
@@ -156,6 +184,26 @@ public class Explorer {
         public void setParent(Node parent) {
             this.parent = parent;
         }
+
+        public Node getParent() {
+            return parent;
+        }
+
+        public double getLengthStartToNode() {
+            return lengthStartToNode;
+        }
+
+        public void setHeuristic(double heuristic) {
+            this.heuristic = heuristic;
+        }
+
+        public double getHeuristic() {
+            return heuristic;
+        }
+
+        public void setLengthStartToExitViaNode(double length) {
+            lengthStartToExitViaNode = length;
+        }
     }
 
     public void escapeBasic(EscapeState state) {
@@ -172,7 +220,7 @@ public class Explorer {
         Boolean noUnvisitedNeighbourFound;
 
         // Stop when the orb is reached, ie. distance is zero
-        while (calculateDistanceToTarget(state) > 0) {
+        while (calculateDistanceToTarget(state, state.getCurrentNode()) > 0) {
             visitedNodes.add(state.getCurrentNode().getId());
             neighbours = state.getCurrentNode().getNeighbours();
             // Initialise nextTile before checking for unvisited tiles
@@ -185,8 +233,8 @@ public class Explorer {
                 if (!visitedNodes.contains(node.getId())) {
                     noUnvisitedNeighbourFound = false;
                     // Look for neighbouring tile closest to orb
-                    if (calculateDistanceToTarget(state) < shortestDistance) {
-                        shortestDistance = calculateDistanceToTarget(state);
+                    if (calculateDistanceToTarget(state, node) < shortestDistance) {
+                        shortestDistance = calculateDistanceToTarget(state, node);
                         nextNode = node;
                     }
                 }
@@ -205,14 +253,24 @@ public class Explorer {
         }
     }
 
-    // Calculate distance from current node to exit
-    private int calculateDistanceToTarget(EscapeState state) {
-        Tile currentTile = state.getCurrentNode().getTile();
+    // Calculate distance from node to exit
+    private int calculateDistanceToTarget(EscapeState state, Node node) {
+        Tile currentTile = node.getTile();
         int currentRow = currentTile.getRow();
         int currentColumn = currentTile.getColumn();
         Tile exitTile = state.getExit().getTile();
         int exitRow = exitTile.getRow();
         int exitColumn = exitTile.getColumn();
         return Math.abs(currentRow - exitRow) + Math.abs(currentColumn - exitColumn);
+    }
+
+    private Double calculateHeuristic(EscapeState state, Node node) {
+        Tile currentTile = node.getTile();
+        int currentRow = currentTile.getRow();
+        int currentColumn = currentTile.getColumn();
+        Tile exitTile = state.getExit().getTile();
+        int exitRow = exitTile.getRow();
+        int exitColumn = exitTile.getColumn();
+        return (double) (Math.abs(currentRow - exitRow) + Math.abs(currentColumn - exitColumn));
     }
 }
