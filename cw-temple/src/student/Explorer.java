@@ -126,6 +126,7 @@ public class Explorer {
         Collection<Node> vertices = state.getVertices();
         for (Node vertex : vertices) {
             nodeMap.put(vertex, new NodeInformation());
+            nodeMap.get(vertex).setGold(vertex.getTile().getGold());
         }
         // Add the Start node to the Open queue with priority = 0
         start = state.getCurrentNode();
@@ -199,9 +200,22 @@ public class Explorer {
         Collections.reverse(path);
         for (Node node : path) {
             state.moveTo(node);
+            nodeMap.get(node).setVisited();
             // Pick up gold if there's any on a tile
             if (node.getTile().getGold() > 0) {
                 state.pickUpGold();
+            }
+            // Pick up gold on adjacent tiles
+            Node tempNode = state.getCurrentNode();
+            List<Node> adjacentTiles = new ArrayList<>(tempNode.getNeighbours());
+            for (Node tile : adjacentTiles) {
+                if (tile.getTile().getGold() > 0 && !path.contains(tile) && !nodeMap.get(tile).getVisited()) {
+                    state.moveTo(tile);
+                    nodeMap.get(tile).setVisited();
+                    nodeMap.get(tile).setVisited();
+                    state.pickUpGold();
+                    state.moveTo(tempNode);
+                }
             }
         }
     }
@@ -230,6 +244,7 @@ public class Explorer {
     private static class NodeInformation {
         Boolean closed = false;
         Boolean open = false;
+        Boolean visited = false;
         Node parent;
         // A* algorithm: G cost
         double lengthStartToNode;
@@ -237,6 +252,8 @@ public class Explorer {
         double heuristic;
         // A* algorithm: F
         double lengthStartToExitViaNode;
+        // Amount of gold on a tile
+        int gold;
 
         public NodeInformation() {}
 
@@ -287,6 +304,18 @@ public class Explorer {
 
         public double getLengthStartToExitViaNode() {
             return lengthStartToExitViaNode;
+        }
+
+        public void setGold(int gold) {
+            this.gold = gold;
+        }
+
+        public void setVisited() {
+            visited = true;
+        }
+
+        public Boolean getVisited() {
+            return visited;
         }
     }
 }
