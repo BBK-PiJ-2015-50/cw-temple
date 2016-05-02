@@ -148,7 +148,6 @@ public class Explorer {
         //path.remove(0);
         for (Node node : path) {
             state.moveTo(node);
-            //System.out.println("row: " + node.getTile().getRow() + "\t" + "column: " + node.getTile().getColumn());
             if (node.getTile().getGold() > 0) {
                 state.pickUpGold();
             }
