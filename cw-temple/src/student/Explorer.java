@@ -100,30 +100,48 @@ public class Explorer {
      */
     public void escape(EscapeState state) {
 
-        // Implementation of A* algorithm for finding a path through the cavern
+        /**
+         *  Implementation of A* algorithm for finding a path through the cavern
+         *
+         *  Searches possible paths for one with the lowest cost
+         *  - in this case that's the shortest distance/lowest number of steps
+         *
+         *  The equation used in the algorithm is F = G + H
+         *  G - the cost of moving from the start position to the node in question
+         *  H - the heuristic...estimated cost of moving this node to the exit
+         *
+         *  The algorithm looks for the lowest F cost at each stage
+         *
+         *  The supplied Priority Queue is used for the "open" nodes
+         */
 
         PriorityQueue<Node> openNodes = new PriorityQueueImpl<>();
         HashMap<Node, NodeInformation> nodeMap = new HashMap<>();
-        Node tempNode;
+        Node pathNode;
         double lengthStartToParent, lengthStartToNeighbour, heuristic, lengthStartToExitViaNeighbour;
 
+        // All nodes on the graph are mapped to NodeInformation objects
         Collection<Node> vertices = state.getVertices();
         for (Node vertex : vertices) {
             nodeMap.put(vertex, new NodeInformation());
         }
+
         Node start = state.getCurrentNode();
         double priority = 0;
+        // Add the start node to the Open queue
         addToOpenNodesQueue(openNodes, nodeMap, start, priority);
-        tempNode = start;
-        while (tempNode != state.getExit()) {
-            tempNode = openNodes.poll();
-            nodeMap.get(tempNode).setClosed();
-            if (tempNode != state.getExit()) {
-                for (Edge edge : tempNode.getExits()) {
+        pathNode = start;
+        // Repeat until the exit node is reached
+        while (pathNode != state.getExit()) {
+            //
+            pathNode = openNodes.poll();
+            nodeMap.get(pathNode).setClosed();
+            if (pathNode != state.getExit()) {
+                for (Edge edge : pathNode.getExits()) {
                     Node neighbour = edge.getDest();
                     if (!nodeMap.get(neighbour).getClosed()) {
                         if (!nodeMap.get(neighbour).getOpen()) {
-                            nodeMap.get(neighbour).setParent(tempNode);
+                            nodeMap.get(neighbour).setParent(pathNode);
                             lengthStartToParent = nodeMap.get(nodeMap.get(neighbour).getParent()).getLengthStartToNode();
                             lengthStartToNeighbour = lengthStartToParent + edge.length();
                             nodeMap.get(neighbour).setLengthStartToNode(lengthStartToNeighbour);
@@ -134,17 +152,17 @@ public class Explorer {
                             priority = lengthStartToExitViaNeighbour;
                             addToOpenNodesQueue(openNodes, nodeMap, neighbour, priority);
                         } else {
-                            // Check if path is shorter via this tempNode
-                            double lengthStartToTempNode = nodeMap.get(tempNode).getLengthStartToNode();
-                            double lengthTempNodeToNeighbour = tempNode.getEdge(neighbour).length();
-                            double lengthStartToNeighbourViaTempNode = lengthStartToTempNode + lengthTempNodeToNeighbour;
-                            if (lengthStartToNeighbourViaTempNode < nodeMap.get(neighbour).getLengthStartToNode()) {
-                                nodeMap.get(neighbour).setParent(tempNode);
-                                nodeMap.get(neighbour).setLengthStartToNode(lengthStartToNeighbourViaTempNode);
-                                double lengthStartToExitViaTempNode = lengthStartToNeighbourViaTempNode
+                            // Check if path is shorter via this pathNode
+                            double lengthStartTopathNode = nodeMap.get(pathNode).getLengthStartToNode();
+                            double lengthpathNodeToNeighbour = pathNode.getEdge(neighbour).length();
+                            double lengthStartToNeighbourViapathNode = lengthStartTopathNode + lengthpathNodeToNeighbour;
+                            if (lengthStartToNeighbourViapathNode < nodeMap.get(neighbour).getLengthStartToNode()) {
+                                nodeMap.get(neighbour).setParent(pathNode);
+                                nodeMap.get(neighbour).setLengthStartToNode(lengthStartToNeighbourViapathNode);
+                                double lengthStartToExitViapathNode = lengthStartToNeighbourViapathNode
                                         + nodeMap.get(neighbour).getHeuristic();
-                                nodeMap.get(neighbour).setLengthStartToExitViaNode(lengthStartToExitViaTempNode);
-                                openNodes.updatePriority(neighbour, lengthStartToExitViaTempNode);
+                                nodeMap.get(neighbour).setLengthStartToExitViaNode(lengthStartToExitViapathNode);
+                                openNodes.updatePriority(neighbour, lengthStartToExitViapathNode);
                             }
                         }
                     }
@@ -153,10 +171,10 @@ public class Explorer {
         }
         // Save path
         ArrayList<Node> path = new ArrayList<>();
-        tempNode = state.getExit();
-        while (tempNode != start) {
-            path.add(tempNode);
-            tempNode = nodeMap.get(tempNode).getParent();
+        pathNode = state.getExit();
+        while (pathNode != start) {
+            path.add(pathNode);
+            pathNode = nodeMap.get(pathNode).getParent();
         }
         // Reverse path so it will run from start to exit
         Collections.reverse(path);
