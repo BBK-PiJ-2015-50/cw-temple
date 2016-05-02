@@ -99,7 +99,7 @@ public class Explorer {
      */
     public void escape(EscapeState state) {
 
-        //TODO: Implement A* algorithm for finding a path through the cavern
+        // Implementation of A* algorithm for finding a path through the cavern
 
         PriorityQueue<Node> openNodes = new PriorityQueueImpl<>();
         HashMap<Node, NodeInformation> nodeMap = new HashMap<>();
@@ -131,6 +131,19 @@ public class Explorer {
                             lengthStartToExitViaNeighbour = lengthStartToNeighbour + heuristic;
                             priority = lengthStartToExitViaNeighbour;
                             addToOpenNodesQueue(openNodes, nodeMap, neighbour, priority);
+                        } else {
+                            // Check if path is shorter via this tempNode
+                            double lengthStartToTempNode = nodeMap.get(tempNode).getLengthStartToNode();
+                            double lengthTempNodeToNeighbour = tempNode.getEdge(neighbour).length();
+                            double lengthStartToNeighbourViaTempNode = lengthStartToTempNode + lengthTempNodeToNeighbour;
+                            if (lengthStartToNeighbourViaTempNode < nodeMap.get(neighbour).getLengthStartToNode()) {
+                                nodeMap.get(neighbour).setParent(tempNode);
+                                nodeMap.get(neighbour).setLengthStartToNode(lengthStartToNeighbourViaTempNode);
+                                double lengthStartToExitViaTempNode = lengthStartToNeighbourViaTempNode
+                                        + nodeMap.get(neighbour).getHeuristic();
+                                nodeMap.get(neighbour).setLengthStartToExitViaNode(lengthStartToExitViaTempNode);
+                                openNodes.updatePriority(neighbour, lengthStartToExitViaTempNode);
+                            }
                         }
                     }
                 }
@@ -195,6 +208,10 @@ public class Explorer {
 
         public Node getParent() {
             return parent;
+        }
+
+        public void setLengthStartToNode(double length) {
+            lengthStartToNode = length;
         }
 
         public double getLengthStartToNode() {
