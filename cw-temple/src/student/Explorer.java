@@ -7,7 +7,7 @@ import java.util.*;
 
 public class Explorer {
 
-    static final int STEPS_REMAINING_CHECK = 100;
+    private static final int STEPS_REMAINING_CHECK = 100;
 
     /**
      * Explore the cavern, trying to find the orb in as few steps as possible.
@@ -198,6 +198,7 @@ public class Explorer {
             path.add(pathNode);
             pathNode = nodeMap.get(pathNode).getParent();
         }
+        System.out.println("path size = " + path.size());
         // Reverse path then follow it from start to exit
         Collections.reverse(path);
         for (Node node : path) {
@@ -217,7 +218,6 @@ public class Explorer {
                 }
                 if (tile.getTile().getGold() > 0 && !path.contains(tile) && !nodeMap.get(tile).getVisited()) {
                     state.moveTo(tile);
-                    nodeMap.get(tile).setVisited();
                     nodeMap.get(tile).setVisited();
                     state.pickUpGold();
                     state.moveTo(tempNode);
@@ -248,20 +248,22 @@ public class Explorer {
     }
 
     private static class NodeInformation {
-        Boolean closed = false;
-        Boolean open = false;
-        Boolean visited = false;
-        Node parent;
+        private Boolean closed, open, visited;
+        private Node parent;
         // A* algorithm: G cost
-        double lengthStartToNode;
+        private double lengthStartToNode;
         // A* algorithm: H
-        double heuristic;
+        private double heuristic;
         // A* algorithm: F
-        double lengthStartToExitViaNode;
+        private double lengthStartToExitViaNode;
         // Amount of gold on a tile
-        int gold;
+        private int gold;
 
-        public NodeInformation() {}
+        public NodeInformation() {
+            closed = false;
+            open = false;
+            visited = false;
+        }
 
         public void setOpen() {
             open = true;
