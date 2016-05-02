@@ -115,6 +115,8 @@ public class Explorer {
          *  The supplied Priority Queue is used for the "open" nodes
          */
 
+        //TODO: Adapt method to seek out more gold
+
         PriorityQueue<Node> openNodes = new PriorityQueueImpl<>();
         HashMap<Node, NodeInformation> nodeMap = new HashMap<>();
         Node pathNode, start;
@@ -209,8 +211,20 @@ public class Explorer {
     private void addToOpenNodesQueue(PriorityQueue<Node> openNodes, HashMap<Node, NodeInformation> nodeMap,
                                      Node node, double priority) {
         openNodes.add(node, priority);
-        nodeMap.get(node).setOpen(true);
+        nodeMap.get(node).setOpen();
         nodeMap.get(node).setLengthStartToExitViaNode(priority);
+    }
+
+    /* Calculate distance from node to exit: Manhattan or Rectilinear distance
+     * Simply the sum of horizontal and vertical distances */
+    private double calculateHeuristic(EscapeState state, Node node) {
+        Tile currentTile = node.getTile();
+        int currentRow = currentTile.getRow();
+        int currentColumn = currentTile.getColumn();
+        Tile exitTile = state.getExit().getTile();
+        int exitRow = exitTile.getRow();
+        int exitColumn = exitTile.getColumn();
+        return (double) (Math.abs(currentRow - exitRow) + Math.abs(currentColumn - exitColumn));
     }
 
     private static class NodeInformation {
@@ -226,8 +240,8 @@ public class Explorer {
 
         public NodeInformation() {}
 
-        public void setOpen(Boolean open) {
-            this.open = open;
+        public void setOpen() {
+            open = true;
         }
 
         public Boolean getOpen () {
@@ -236,6 +250,7 @@ public class Explorer {
 
         public void setClosed() {
             closed = true;
+            open = false;
         }
 
         public Boolean getClosed() {
@@ -273,26 +288,5 @@ public class Explorer {
         public double getLengthStartToExitViaNode() {
             return lengthStartToExitViaNode;
         }
-    }
-
-    // Calculate distance from node to exit
-    private int calculateDistanceToTarget(EscapeState state, Node node) {
-        Tile currentTile = node.getTile();
-        int currentRow = currentTile.getRow();
-        int currentColumn = currentTile.getColumn();
-        Tile exitTile = state.getExit().getTile();
-        int exitRow = exitTile.getRow();
-        int exitColumn = exitTile.getColumn();
-        return Math.abs(currentRow - exitRow) + Math.abs(currentColumn - exitColumn);
-    }
-
-    private Double calculateHeuristic(EscapeState state, Node node) {
-        Tile currentTile = node.getTile();
-        int currentRow = currentTile.getRow();
-        int currentColumn = currentTile.getColumn();
-        Tile exitTile = state.getExit().getTile();
-        int exitRow = exitTile.getRow();
-        int exitColumn = exitTile.getColumn();
-        return (double) (Math.abs(currentRow - exitRow) + Math.abs(currentColumn - exitColumn));
     }
 }
