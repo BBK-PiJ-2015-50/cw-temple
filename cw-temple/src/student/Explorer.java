@@ -217,8 +217,11 @@ public class Explorer {
         Boolean closed = false;
         Boolean open = false;
         Node parent;
+        // A* algorithm: G cost
         double lengthStartToNode;
+        // A* algorithm: H
         double heuristic;
+        // A* algorithm: F
         double lengthStartToExitViaNode;
 
         public NodeInformation() {}
