@@ -103,32 +103,34 @@ public class Explorer {
 
         PriorityQueue<Node> openNodes = new PriorityQueueImpl<>();
         HashMap<Node, NodeInformation> nodeMap = new HashMap<>();
-        Collection<Node> vertices = state.getVertices();
-        Node currentNode;
-        Node start = state.getCurrentNode();
+        Node tempNode;
+        double lengthStartToParent, lengthStartToNeighbour, heuristic, lengthStartToExitViaNeighbour;
 
+        Collection<Node> vertices = state.getVertices();
         for (Node vertex : vertices) {
             nodeMap.put(vertex, new NodeInformation());
         }
+        Node start = state.getCurrentNode();
         double priority = 0;
         addToOpenNodesQueue(openNodes, nodeMap, start, priority);
-        currentNode = start;
-        while (currentNode != state.getExit()) {
-            currentNode = openNodes.poll();
-            nodeMap.get(currentNode).setClosed();
-            if (currentNode != state.getExit()) {
-                for (Edge edge : currentNode.getExits()) {
+        tempNode = start;
+        while (tempNode != state.getExit()) {
+            tempNode = openNodes.poll();
+            nodeMap.get(tempNode).setClosed();
+            if (tempNode != state.getExit()) {
+                for (Edge edge : tempNode.getExits()) {
                     Node neighbour = edge.getDest();
                     if (!nodeMap.get(neighbour).getClosed()) {
                         if (!nodeMap.get(neighbour).getOpen()) {
-                            nodeMap.get(neighbour).setParent(currentNode);
-                            double lengthStartToParent = nodeMap.get(nodeMap.get(neighbour)
+                            nodeMap.get(neighbour).setParent(tempNode);
+                            lengthStartToParent = nodeMap.get(nodeMap.get(neighbour)
                                     .getParent()).getLengthStartToNode();
-                            double lengthStartToNeighbour = lengthStartToParent + edge.length();
-                            double heuristic = calculateHeuristic(state, neighbour);
+                            lengthStartToNeighbour = lengthStartToParent + edge.length();
+                            heuristic = calculateHeuristic(state, neighbour);
                             nodeMap.get(neighbour).setHeuristic(heuristic);
-                            double lengthStartToExitViaNeighbour = lengthStartToNeighbour + heuristic;
-                            addToOpenNodesQueue(openNodes, nodeMap, neighbour, lengthStartToExitViaNeighbour);
+                            lengthStartToExitViaNeighbour = lengthStartToNeighbour + heuristic;
+                            priority = lengthStartToExitViaNeighbour;
+                            addToOpenNodesQueue(openNodes, nodeMap, neighbour, priority);
                         }
                     }
                 }
@@ -136,7 +138,7 @@ public class Explorer {
         }
         // Save path
         ArrayList<Node> path = new ArrayList<>();
-        Node tempNode = state.getExit();
+        tempNode = state.getExit();
         while (tempNode != start) {
             path.add(tempNode);
             tempNode = nodeMap.get(tempNode).getParent();
