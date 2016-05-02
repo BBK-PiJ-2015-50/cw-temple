@@ -210,7 +210,7 @@ public class Explorer {
             Node tempNode = state.getCurrentNode();
             List<Node> adjacentTiles = new ArrayList<>(tempNode.getNeighbours());
             for (Node tile : adjacentTiles) {
-                if (state.getTimeRemaining() < 80) {
+                if (state.getTimeRemaining() < 100) {
                     break;
                 }
                 if (tile.getTile().getGold() > 0 && !path.contains(tile) && !nodeMap.get(tile).getVisited()) {
