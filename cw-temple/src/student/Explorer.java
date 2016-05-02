@@ -167,9 +167,9 @@ public class Explorer {
                              * with priority being the length from Start to Exit via this node */
                             addToOpenNodesQueue(openNodes, nodeMap, neighbour, lengthStartToExitViaNeighbour);
                         } else {
-                            /*  If this neighbour node is already on the Open queue,
-                                check if path to Exit is shorter via this pathNode than previous path
-                                First calculate length of path from Start to this neighbour node via pathNode */
+                            /* If this neighbour node is already on the Open queue,
+                             *   check if path to Exit is shorter via this pathNode than previous path
+                             *   First calculate length of path from Start to this neighbour node via pathNode */
                             double lengthStartToPathNode = nodeMap.get(pathNode).getLengthStartToNode();
                             double lengthPathNodeToNeighbour = pathNode.getEdge(neighbour).length();
                             double lengthStartToNeighbourViaPathNode = lengthStartToPathNode + lengthPathNodeToNeighbour;
